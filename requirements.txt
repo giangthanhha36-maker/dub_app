@@ -1,0 +1,4 @@
+# Thu vien toi thieu cho dub_app (chay trong env ste hoac venv rieng)
+gradio==4.44.1
+gradio_client==1.3.0
+PyYAML==6.0.2
