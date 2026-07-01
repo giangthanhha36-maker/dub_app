@@ -137,7 +137,7 @@ def process_dub(
             err = traceback.format_exc()
             log(f"Loi: {e}\n{err}")
             if "OmniVoice" in str(e) or "Connection" in str(e):
-                log("Goi y: chay ../start_omnivoice.sh hoac kiem tra URL OmniVoice.")
+                log("Goi y: chay ./run_omnivoice.sh hoac kiem tra URL OmniVoice trong config.yaml.")
             emit()
         finally:
             update_q.put(None)
@@ -170,7 +170,7 @@ def build_ui():
             "OmniVoice tao giong clone, sau do ghep vao video voi ti le "
             f"**{int(float(dub_cfg.get('orig_gain', 0.3)) * 100)}% tieng goc / "
             f"{int(float(dub_cfg.get('tts_gain', 0.7)) * 100)}% long tieng**.\n\n"
-            "Can service OmniVoice dang chay (`../start_omnivoice.sh`, cong 7861)."
+            "Can service OmniVoice dang chay (`./run_omnivoice.sh`, cong 7861)."
         )
 
         with gr.Row():

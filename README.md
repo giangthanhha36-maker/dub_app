@@ -1,64 +1,111 @@
 # dub_app — Long tieng video doc lap
 
-Package tu chua: upload video + file `.srt` → OmniVoice clone giong → ghep audio **30% goc / 70% dub** → video hoan chinh.
+Repo tu chua day du: upload video + file `.srt` → OmniVoice clone giong → ghep audio **30% goc / 70% dub** → video hoan chinh.
 
-Khong phu thuoc pipeline OCR/xoa phu de/dich cua repo cha. Co the copy folder nay sang repo rieng.
+Khong phu thuoc pipeline OCR/xoa phu de/dich. Clone repo nay la du de chay tren server.
+
+## Kien truc
+
+```
+Trinh duyet  →  dub_app UI (:7862, .venv)  →  OmniVoice API (:7861, conda omnivoice + GPU)
+```
+
+Hai service dung **hai moi truong Python tach biet** — khong tron chung env.
 
 ## Yeu cau
 
-- Python 3.10+
+- Python 3.10+ (UI), Python 3.12 (OmniVoice API)
 - `ffmpeg` trong PATH
-- Service **OmniVoice** dang chay (tu repo cha: `../start_omnivoice.sh`, cong 7861)
+- GPU NVIDIA + driver (`nvidia-smi` chay duoc) cho OmniVoice
+- Miniconda (cho env `omnivoice`)
 - File `.srt` da chuan bi ben ngoai (timeline khop video)
 
-## Cai dat
+## Cai dat lan dau
 
 ```bash
+git clone <repo-dub_app>
 cd dub_app
-cp config-template.yaml config.yaml
-# Sua config.yaml neu OmniVoice o may khac
 
-# Trong env ste (hoac venv):
-pip install -r requirements.txt
-chmod +x run.sh
+cp config-template.yaml config.yaml
+# Sua config.yaml neu OmniVoice chay may khac
+
+chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh
+
+# 1) Cai env GPU cho OmniVoice API (chay 1 lan)
+./setup_omnivoice.sh
+
+# 2) UI tu tao .venv khi chay ./run.sh lan dau
 ```
 
 ## Chay
 
+### Cach 1 — Hai terminal (khuyen nghi khi test)
+
 ```bash
-# Terminal 1 — OmniVoice (tu thu muc repo cha)
-cd ..
-./start_omnivoice.sh
+# Terminal 1 — OmniVoice API (doi "Model loaded.")
+./run_omnivoice.sh
 
 # Terminal 2 — UI long tieng
-cd dub_app
 ./run.sh
 ```
 
 Mo trinh duyet: **http://&lt;IP-server&gt;:7862**
 
+### Cach 2 — Mot lenh (chay nen)
+
+```bash
+./start_all.sh
+tail -f logs/omnivoice.log   # doi Model loaded.
+tail -f logs/ui.log
+```
+
+Dung dich vu:
+
+```bash
+./stop_all.sh
+```
+
+Chi tiet trien khai server (firewall, tmux, SSH tunnel): xem [SERVER.md](SERVER.md).
+
 ## Cau truc
 
 ```
 dub_app/
-├── app.py                 # UI Gradio
+├── app.py                    # UI Gradio (long tieng)
+├── audio.py                  # OmniVoice API (SRT → speech)
 ├── config-template.yaml
-├── run.sh
-├── pipeline/run.py        # video + SRT -> dub -> ghep
-├── client/tts_client.py   # goi OmniVoice API
-└── utils/                 # ffmpeg, audio mix 3:7
+├── run.sh                    # Khoi dong UI (.venv)
+├── run_omnivoice.sh          # Khoi dong OmniVoice API (conda)
+├── setup_omnivoice.sh        # Cai env omnivoice (1 lan)
+├── start_all.sh              # Khoi dong ca 2 service (nền)
+├── stop_all.sh               # Dung ca 2 service
+├── requirements.txt          # Thu vien UI
+├── requirements-omnivoice.txt
+├── pipeline/run.py           # video + SRT → dub → ghep
+├── client/tts_client.py      # goi OmniVoice API
+└── utils/                    # ffmpeg, audio mix 3:7
 ```
 
-Output: `dub_app/output/<ten_video>_<timestamp>/`
+Output: `output/<ten_video>_<timestamp>/`
 
-## Tach thanh repo rieng
+## Cau hinh
 
-1. Copy nguyen folder `dub_app/`
-2. Cai `requirements.txt`
-3. Chay OmniVoice (`audio.py`) o bat ky dau, dat `tts.server_url` trong `config.yaml`
-4. `./run.sh`
+`config.yaml`:
 
-Khong can Paddle, OCR, STTN hay env `omnivoice` tren may chay UI — chi can `gradio_client` goi API.
+```yaml
+tts:
+  server_url: "http://127.0.0.1:7861"   # cung may
+  # server_url: "http://<IP-GPU>:7861"  # may khac
+
+ui:
+  port: 7862
+```
+
+Doi cong UI khi chay:
+
+```bash
+GRADIO_PORT=8080 ./run.sh
+```
 
 ## Cong thuong dung
 
@@ -66,4 +113,11 @@ Khong can Paddle, OCR, STTN hay env `omnivoice` tren may chay UI — chi can `gr
 |------|---------|
 | 7862 | dub_app UI (mac dinh) |
 | 7861 | OmniVoice API |
-| 7860 | Pipeline chinh (repo cha, neu chay) |
+
+## OmniVoice tren may khac
+
+1. Clone repo nay (hoac chi can `audio.py` + script omnivoice) len server GPU
+2. `./setup_omnivoice.sh && ./run_omnivoice.sh`
+3. Trong `config.yaml` cua dub_app: `tts.server_url: "http://<IP-GPU>:7861"`
+
+May chay UI **khong can** GPU hay env `omnivoice` — chi can `gradio_client` goi API.

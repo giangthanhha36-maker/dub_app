@@ -2,7 +2,7 @@
 Client goi service OmniVoice (audio.py) de tao audio long tieng.
 
 Service phai chay truoc, vi du:
-    ../start_omnivoice.sh   (cong 7861)
+    ./run_omnivoice.sh   (cong 7861)
 
 Endpoint: api_name="/srt_to_speech"
 """

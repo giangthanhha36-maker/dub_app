@@ -1,5 +1,7 @@
 output/
 .venv/
+logs/
+.pids/
 config.yaml
 __pycache__/
 *.pyc
