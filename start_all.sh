@@ -14,7 +14,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-GRADIO_PORT="${GRADIO_PORT:-7860}"
+GRADIO_PORT="${GRADIO_PORT:-8000}"
 
 mkdir -p logs
 PID_DIR="$SCRIPT_DIR/.pids"

@@ -7,7 +7,7 @@ Khong phu thuoc pipeline OCR/xoa phu de/dich. Clone repo nay la du de chay tren 
 ## Kien truc
 
 ```
-Trinh duyet  →  app.py (:7860, conda omnivoice + GPU)
+Trinh duyet  →  app.py (:8000, conda omnivoice + GPU)
                     UI Gradio + OmniVoice engine (cung process)
 ```
 
@@ -51,7 +51,7 @@ Dung tat ca:
 ./stop_all.sh
 ```
 
-Mo trinh duyet: **http://&lt;IP-server&gt;:7860**
+Mo trinh duyet: **http://&lt;IP-server&gt;:8000**
 
 ### Cach 2 — Foreground (khi debug)
 
@@ -120,7 +120,7 @@ dub:
   tts_gain: 0.7
 
 ui:
-  port: 7860
+  port: 8000
 ```
 
 Doi cong UI khi chay:
@@ -133,4 +133,4 @@ GRADIO_PORT=8080 ./run.sh
 
 | Cong | Dich vu |
 |------|---------|
-| 7860 | dub_app UI (mac dinh) |
+| 8000 | dub_app UI (mac dinh) |

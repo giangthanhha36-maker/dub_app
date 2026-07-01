@@ -3,7 +3,7 @@
 # Khoi dong dub_app — UI + OmniVoice trong CUNG mot process.
 #
 #   ./run.sh
-#   GRADIO_PORT=7860 ./run.sh
+#   GRADIO_PORT=8000 ./run.sh
 #   GRADIO_SHARE=1 ./run.sh
 #   OMNIVOICE_NO_ASR=1 ./run.sh   # nhe VRAM
 # ===========================================================================
@@ -18,7 +18,7 @@ if [ ! -f config.yaml ]; then
 fi
 
 export PYTHONUTF8="${PYTHONUTF8:-1}"
-export GRADIO_PORT="${GRADIO_PORT:-7860}"
+export GRADIO_PORT="${GRADIO_PORT:-8000}"
 OMNIVOICE_NO_ASR="${OMNIVOICE_NO_ASR:-0}"
 export OMNIVOICE_NO_ASR
 

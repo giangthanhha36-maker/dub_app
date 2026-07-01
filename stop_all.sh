@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_DIR="$SCRIPT_DIR/.pids"
 
-GRADIO_PORT="${GRADIO_PORT:-7860}"
+GRADIO_PORT="${GRADIO_PORT:-8000}"
 
 _stop_pid() {
     local name="$1"

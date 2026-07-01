@@ -8,10 +8,10 @@ Huong dan cho server Linux **khong co man hinh**, thao tac qua SSH. Giao dien we
 
 | Cong | Dich vu | Mo ra internet? |
 |------|---------|-----------------|
-| **7860** | dub_app (`app.py` — UI + OmniVoice) | **CO** — cong ban truy cap |
+| **8000** | dub_app (`app.py` — UI + OmniVoice) | **CO** — cong ban truy cap |
 
 ```text
-http://<IP-server>:7860
+http://<IP-server>:8000
 ```
 
 OmniVoice chay **trong cung process** voi UI — khong can mo cong 7861.
@@ -93,23 +93,23 @@ python -m pipeline.cli --video input.mp4 --srt input.srt
 
 ## 5. Truy cap tu may ca nhan
 
-### Mo firewall cong 7860
+### Mo firewall cong 8000
 
 ```bash
-sudo ufw allow 7860/tcp
+sudo ufw allow 8000/tcp
 ```
 
-Tren VPS (AWS, GCP, RunPod…): mo **TCP 7860** trong Security Group.
+Tren VPS (AWS, GCP, RunPod…): mo **TCP 8000** trong Security Group.
 
 ### SSH tunnel (khong can mo cong public)
 
 Tren may ca nhan:
 
 ```bash
-ssh -L 7860:localhost:7860 user@<IP-server>
+ssh -L 8000:localhost:8000 user@<IP-server>
 ```
 
-Mo trinh duyet: `http://localhost:7860`
+Mo trinh duyet: `http://localhost:8000`
 
 ### Link Gradio public
 
@@ -147,7 +147,7 @@ Khong con `.venv` rieng hay service API tren cong 7861.
 | Trieu chung | Cach xu ly |
 |-------------|------------|
 | `HfFolder` / `huggingface_hub` | Trong env omnivoice: `pip install -r requirements-omnivoice-base.txt` hoac chay lai `./setup_omnivoice.sh` |
-| `Cannot find empty port 7860` | Process cu chua tat: `./stop_all.sh` hoac `fuser -k 7860/tcp` |
+| `Cannot find empty port 8000` | Process cu chua tat: `./stop_all.sh` hoac `fuser -k 8000/tcp` |
 | Out of memory GPU | `OMNIVOICE_NO_ASR=1 ./run.sh` hoac `no_asr: true` trong config.yaml |
 | Model load cham | Binh thuong — doi "Model loaded." trong `logs/ui.log` |
 
@@ -164,7 +164,7 @@ Khong con `.venv` rieng hay service API tren cong 7861.
 ./status.sh
 
 # Truy cap
-# http://<IP-server>:7860
+# http://<IP-server>:8000
 
 # Dung
 ./stop_all.sh

@@ -252,7 +252,7 @@ def build_ui(engine: OmniVoiceEngine):
 if __name__ == "__main__":
     cfg = _load_config()
     ui_cfg = cfg.get("ui") or {}
-    port = int(os.environ.get("GRADIO_PORT", ui_cfg.get("port", 7860)))
+    port = int(os.environ.get("GRADIO_PORT", ui_cfg.get("port", 8000)))
     share = os.environ.get("GRADIO_SHARE", "0") == "1"
 
     print("Dang tai model OmniVoice...")
