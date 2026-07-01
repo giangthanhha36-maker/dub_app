@@ -8,3 +8,5 @@ huggingface_hub<1.0
 pydantic==2.10.6
 starlette==0.41.3
 fastapi==0.115.6
+# Python 3.13 da xoa audioop trong stdlib; pydub (gradio) can goi thay the
+pyaudioop>=0.3.0; python_version >= "3.13"
