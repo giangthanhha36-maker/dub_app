@@ -29,7 +29,7 @@ cd dub_app
 cp config-template.yaml config.yaml
 # Sua config.yaml neu OmniVoice chay may khac
 
-chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh
+chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh status.sh
 
 # 1) Cai env GPU cho OmniVoice API (chay 1 lan)
 ./setup_omnivoice.sh
@@ -39,7 +39,23 @@ chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh
 
 ## Chay
 
-### Cach 1 — Hai terminal (khuyen nghi khi test)
+### Cach 1 — Mot lenh (khuyen nghi tren server)
+
+```bash
+./start_all.sh              # khoi dong UI + OmniVoice (nen)
+./status.sh                 # xem trang thai
+tail -f logs/omnivoice.log  # doi "Model loaded." truoc khi long tieng
+```
+
+Dung tat ca:
+
+```bash
+./stop_all.sh
+```
+
+Mo trinh duyet: **http://&lt;IP-server&gt;:7860**
+
+### Cach 2 — Hai terminal (khi debug)
 
 ```bash
 # Terminal 1 — OmniVoice API (doi "Model loaded.")
@@ -49,20 +65,10 @@ chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh
 ./run.sh
 ```
 
-Mo trinh duyet: **http://&lt;IP-server&gt;:7860**
-
-### Cach 2 — Mot lenh (chay nen)
+### Cach 3 — Link Gradio public (khong can mo firewall)
 
 ```bash
-./start_all.sh
-tail -f logs/omnivoice.log   # doi Model loaded.
-tail -f logs/ui.log
-```
-
-Dung dich vu:
-
-```bash
-./stop_all.sh
+GRADIO_SHARE=1 ./start_all.sh
 ```
 
 Chi tiet trien khai server (firewall, tmux, SSH tunnel): xem [SERVER.md](SERVER.md).
@@ -77,8 +83,9 @@ dub_app/
 ├── run.sh                    # Khoi dong UI (.venv)
 ├── run_omnivoice.sh          # Khoi dong OmniVoice API (conda)
 ├── setup_omnivoice.sh        # Cai env omnivoice (1 lan)
-├── start_all.sh              # Khoi dong ca 2 service (nền)
-├── stop_all.sh               # Dung ca 2 service
+├── start_all.sh              # Khoi dong ca 2 service (1 lenh)
+├── stop_all.sh               # Dung ca 2 service (1 lenh)
+├── status.sh                 # Xem trang thai dich vu
 ├── requirements.txt          # Thu vien UI
 ├── requirements-omnivoice.txt
 ├── pipeline/run.py           # video + SRT → dub → ghep

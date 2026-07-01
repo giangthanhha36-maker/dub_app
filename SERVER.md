@@ -60,12 +60,18 @@ Lan dau `setup_omnivoice.sh` tai torch + model OmniVoice — mat vai phut.
 
 ## 4. Khoi dong dich vu
 
-### Cach A — Mot lenh (nen)
+### Cach A — Mot lenh (khuyen nghi)
 
 ```bash
 ./start_all.sh
+./status.sh
 tail -f logs/omnivoice.log   # doi dong "Model loaded."
-tail -f logs/ui.log
+```
+
+Dung tat ca:
+
+```bash
+./stop_all.sh
 ```
 
 ### Cach B — Hai terminal / tmux
@@ -91,6 +97,7 @@ Dung:
 
 ```bash
 ./stop_all.sh
+./status.sh
 ```
 
 ---
@@ -177,6 +184,7 @@ curl http://127.0.0.1:7861
 
 # Chay
 ./start_all.sh
+./status.sh
 
 # Truy cap
 # http://<IP-server>:7860

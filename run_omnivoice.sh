@@ -67,6 +67,7 @@ conda activate omnivoice 2>/dev/null || {
 # Kiem tra gradio import duoc (tranh loi HfFolder)
 if ! python -c "import gradio" 2>/dev/null; then
     echo "[SETUP] Sua dependency omnivoice (gradio / huggingface_hub)..."
+    pip install -r requirements-omnivoice-base.txt
     pip install -r requirements-omnivoice.txt
 fi
 

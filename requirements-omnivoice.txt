@@ -1,23 +1,16 @@
 # ===========================================================================
 # Moi truong RIENG cho OmniVoice API (audio.py). Python 3.12 + CUDA.
 #
-# Cai dat (chay 1 lan):
-#   ./setup_omnivoice.sh
-#
-# Hoac thu cong:
-#   conda create -n omnivoice python=3.12 -y
-#   conda activate omnivoice
-#   pip install torch==2.8.0+cu128 torchaudio==2.8.0+cu128 torchvision==0.23.0+cu128 \
-#       --extra-index-url https://download.pytorch.org/whl/cu128
-#   pip install -r requirements-omnivoice.txt
+# QUAN TRONG: cai theo thu tu trong setup_omnivoice.sh
+#   1) torch GPU
+#   2) requirements-omnivoice-base.txt  (gradio stack — cai TRUOC)
+#   3) requirements-omnivoice.txt       (omnivoice + audio libs)
 # ===========================================================================
+
+# Gradio stack phai cai truoc omnivoice (tranh pip backtracking typer rat lau)
+# Xem requirements-omnivoice-base.txt
+
 omnivoice
-# Gradio 4.44.x + ghim dependency (tranh loi HfFolder / starlette / pydantic)
-gradio==4.44.1
-huggingface_hub<1.0
-pydantic==2.10.6
-starlette==0.41.3
-fastapi==0.115.6
 numpy
 pysrt
 librosa

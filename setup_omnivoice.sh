@@ -42,11 +42,17 @@ fi
 
 conda activate omnivoice
 
+echo ">>> Nang cap pip..."
+pip install --no-cache-dir -U "pip>=24.0"
+
 echo ">>> Cai torch GPU (cu128)..."
 pip install --no-cache-dir torch==2.8.0+cu128 torchaudio==2.8.0+cu128 torchvision==0.23.0+cu128 \
     --extra-index-url https://download.pytorch.org/whl/cu128
 
-echo ">>> Cai requirements-omnivoice.txt (ghim gradio + huggingface_hub)..."
+echo ">>> Cai gradio stack (truoc omnivoice — tranh backtracking)..."
+pip install --no-cache-dir -r requirements-omnivoice-base.txt
+
+echo ">>> Cai omnivoice + thu vien audio..."
 pip install --no-cache-dir -r requirements-omnivoice.txt
 
 python -c "import gradio; import huggingface_hub; print('[OK] gradio', gradio.__version__, '| huggingface_hub', huggingface_hub.__version__)"
