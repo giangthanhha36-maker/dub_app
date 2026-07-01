@@ -244,7 +244,7 @@ if __name__ == "__main__":
     demo = build_ui()
     cfg = _load_config()
     ui_cfg = cfg.get("ui") or {}
-    port = int(os.environ.get("GRADIO_PORT", ui_cfg.get("port", 7862)))
+    port = int(os.environ.get("GRADIO_PORT", ui_cfg.get("port", 7860)))
     share = os.environ.get("GRADIO_SHARE", "0") == "1"
     demo.queue().launch(
         server_name="0.0.0.0",

@@ -2,7 +2,7 @@
 # ===========================================================================
 # Khoi dong CA HAI dich vu dub_app (nen):
 #   - OmniVoice API  (:7861)  -> logs/omnivoice.log
-#   - UI long tieng  (:7862)  -> logs/ui.log
+#   - UI long tieng  (:7860)  -> logs/ui.log
 #
 #   ./start_all.sh
 #   GRADIO_SHARE=1 ./start_all.sh
@@ -46,7 +46,7 @@ else
     echo "  PID: $(cat "$PID_DIR/ui.pid") | log: logs/ui.log"
 fi
 
-GRADIO_PORT="${GRADIO_PORT:-7862}"
+GRADIO_PORT="${GRADIO_PORT:-7860}"
 OMNIVOICE_PORT="${OMNIVOICE_PORT:-7861}"
 SERVER_IP="$(hostname -I 2>/dev/null | awk '{print $1}' || echo '<IP-server>')"
 

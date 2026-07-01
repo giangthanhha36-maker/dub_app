@@ -12,4 +12,4 @@ dub:
   tts_gain: 0.7    # long tieng 70%
 
 ui:
-  port: 7862
+  port: 7860

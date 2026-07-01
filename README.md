@@ -7,7 +7,7 @@ Khong phu thuoc pipeline OCR/xoa phu de/dich. Clone repo nay la du de chay tren 
 ## Kien truc
 
 ```
-Trinh duyet  →  dub_app UI (:7862, .venv)  →  OmniVoice API (:7861, conda omnivoice + GPU)
+Trinh duyet  →  dub_app UI (:7860, .venv)  →  OmniVoice API (:7861, conda omnivoice + GPU)
 ```
 
 Hai service dung **hai moi truong Python tach biet** — khong tron chung env.
@@ -49,7 +49,7 @@ chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh
 ./run.sh
 ```
 
-Mo trinh duyet: **http://&lt;IP-server&gt;:7862**
+Mo trinh duyet: **http://&lt;IP-server&gt;:7860**
 
 ### Cach 2 — Mot lenh (chay nen)
 
@@ -98,7 +98,7 @@ tts:
   # server_url: "http://<IP-GPU>:7861"  # may khac
 
 ui:
-  port: 7862
+  port: 7860
 ```
 
 Doi cong UI khi chay:
@@ -111,7 +111,7 @@ GRADIO_PORT=8080 ./run.sh
 
 | Cong | Dich vu |
 |------|---------|
-| 7862 | dub_app UI (mac dinh) |
+| 7860 | dub_app UI (mac dinh) |
 | 7861 | OmniVoice API |
 
 ## OmniVoice tren may khac

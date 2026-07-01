@@ -8,11 +8,11 @@ Huong dan cho server Linux **khong co man hinh**, thao tac qua SSH. Giao dien we
 
 | Cong | Dich vu | Mo ra internet? |
 |------|---------|-----------------|
-| **7862** | dub_app UI (`app.py`) | **CO** — cong ban truy cap |
+| **7860** | dub_app UI (`app.py`) | **CO** — cong ban truy cap |
 | **7861** | OmniVoice API (`audio.py`) | **KHONG** (mac dinh chi localhost) |
 
 ```text
-http://<IP-server>:7862
+http://<IP-server>:7860
 ```
 
 Cung may: `tts.server_url: "http://127.0.0.1:7861"` trong `config.yaml`.
@@ -97,23 +97,23 @@ Dung:
 
 ## 5. Truy cap tu may ca nhan
 
-### Mo firewall cong 7862
+### Mo firewall cong 7860
 
 ```bash
-sudo ufw allow 7862/tcp
+sudo ufw allow 7860/tcp
 ```
 
-Tren VPS (AWS, GCP, RunPod…): mo **TCP 7862** trong Security Group.
+Tren VPS (AWS, GCP, RunPod…): mo **TCP 7860** trong Security Group.
 
 ### SSH tunnel (khong can mo cong public)
 
 Tren may ca nhan:
 
 ```bash
-ssh -L 7862:localhost:7862 user@<IP-server>
+ssh -L 7860:localhost:7860 user@<IP-server>
 ```
 
-Mo trinh duyet: `http://localhost:7862`
+Mo trinh duyet: `http://localhost:7860`
 
 ### Link Gradio public
 
@@ -130,7 +130,7 @@ Link dang `https://xxxxx.gradio.live` trong log.
 ```bash
 # Dung process cu truoc
 ./stop_all.sh
-# hoac: fuser -k 7862/tcp
+# hoac: fuser -k 7860/tcp
 
 GRADIO_PORT=8080 ./run.sh
 ```
@@ -156,9 +156,9 @@ Hoac sua `config.yaml` → `ui.port: 8080`.
 |-------------|------------|
 | `HfFolder` / `huggingface_hub` | Trong env omnivoice: `pip install -r requirements-omnivoice.txt` hoac chay lai `./setup_omnivoice.sh` |
 | `audioop` / `pyaudioop` (Python 3.13) | `./run.sh` tu cai; hoac `rm -rf .venv` roi chay lai (uu tien python3.12) |
-| `Cannot find empty port 7862` | Process cu chua tat: `fuser -k 7862/tcp` hoac `./stop_all.sh` |
+| `Cannot find empty port 7860` | Process cu chua tat: `fuser -k 7860/tcp` hoac `./stop_all.sh` |
 | `Connection refused` :7861 | OmniVoice chua chay: `./run_omnivoice.sh`, doi `Model loaded.` |
-| Khong vao duoc `:7862` tu ngoai | Kiem tra `ufw` + Security Group VPS; thu SSH tunnel |
+| Khong vao duoc `:7860` tu ngoai | Kiem tra `ufw` + Security Group VPS; thu SSH tunnel |
 | Out of memory GPU | `OMNIVOICE_NO_ASR=1 ./run_omnivoice.sh` (nhe VRAM hon) |
 
 Kiem tra OmniVoice san sang:
@@ -179,7 +179,7 @@ curl http://127.0.0.1:7861
 ./start_all.sh
 
 # Truy cap
-# http://<IP-server>:7862
+# http://<IP-server>:7860
 
 # Dung
 ./stop_all.sh

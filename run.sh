@@ -3,7 +3,7 @@
 # Khoi dong UI long tieng doc lap (dub_app).
 #
 #   ./run.sh
-#   GRADIO_PORT=7862 ./run.sh
+#   GRADIO_PORT=7860 ./run.sh
 #   GRADIO_SHARE=1 ./run.sh
 #
 # Yeu cau: OmniVoice API dang chay (audio.py, cong 7861) — URL trong config.yaml
@@ -65,7 +65,7 @@ if [ "$PY_MINOR" -ge 13 ] && ! python -c "import pyaudioop" 2>/dev/null; then
 fi
 
 export PYTHONUTF8="${PYTHONUTF8:-1}"
-export GRADIO_PORT="${GRADIO_PORT:-7862}"
+export GRADIO_PORT="${GRADIO_PORT:-7860}"
 
 echo "=========================================="
 echo " dub_app — Long tieng video"
