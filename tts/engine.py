@@ -127,6 +127,38 @@ class OmniVoiceEngine:
         waveform = np.asarray(audio[0], dtype=np.float32)
         return waveform, "Done."
 
+    def _gen_waveform_for_srt(
+        self,
+        *,
+        text: str,
+        language: str = "Auto",
+        ref_audio=None,
+        instruct: str = "",
+        num_step: int = 32,
+        guidance_scale: float = 2.0,
+        denoise: bool = True,
+        speed: float = 1.0,
+        duration: float = 0,
+        preprocess_prompt: bool = True,
+        postprocess_output: bool = True,
+        ref_text: Optional[str] = None,
+    ) -> Tuple[Optional[np.ndarray], str]:
+        """Adapter cho srt_processor — chi nhan keyword arguments."""
+        return self.generate_waveform(
+            text=text,
+            language=language,
+            ref_audio=ref_audio,
+            instruct=instruct,
+            num_step=num_step,
+            guidance_scale=guidance_scale,
+            denoise=denoise,
+            speed=speed,
+            duration=duration,
+            preprocess_prompt=preprocess_prompt,
+            postprocess_output=postprocess_output,
+            ref_text=ref_text,
+        )
+
     def srt_to_wav(
         self,
         srt_path: str,
@@ -152,7 +184,7 @@ class OmniVoiceEngine:
             base, _ = os.path.splitext(srt_path)
             out_wav = f"{base}_dub.wav"
 
-        gen_fn = self.generate_waveform
+        gen_fn = self._gen_waveform_for_srt
         sr = self.sampling_rate
 
         common = dict(

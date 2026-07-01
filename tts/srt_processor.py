@@ -18,6 +18,39 @@ from tts.helpers import (
 GenWaveformFn = Callable[..., Tuple[Optional[np.ndarray], str]]
 
 
+def _call_gen_waveform(
+    gen_waveform: GenWaveformFn,
+    *,
+    text: str,
+    language: str,
+    ref_audio,
+    instruct: str,
+    num_step: int,
+    guidance_scale: float,
+    denoise: bool,
+    speed: float,
+    duration: float,
+    preprocess_prompt: bool,
+    postprocess_output: bool,
+    ref_text: Optional[str] = None,
+) -> Tuple[Optional[np.ndarray], str]:
+    """Goi gen_waveform bang keyword — tranh loi thu tu tham so."""
+    return gen_waveform(
+        text=text,
+        language=language,
+        ref_audio=ref_audio,
+        instruct=instruct,
+        num_step=num_step,
+        guidance_scale=guidance_scale,
+        denoise=denoise,
+        speed=speed,
+        duration=duration,
+        preprocess_prompt=preprocess_prompt,
+        postprocess_output=postprocess_output,
+        ref_text=ref_text,
+    )
+
+
 def open_srt(srt_file: str):
     """Đọc file SRT (utf-8 trước, fallback encoding tự đoán)."""
     try:
@@ -94,18 +127,19 @@ def srt_to_speech(
                 else:
                     seg_speed = 1.0
 
-        waveform, msg = gen_waveform(
-            text,
-            language,
-            ref_audio,
-            instruct,
-            num_step,
-            guidance_scale,
-            denoise,
-            seg_speed,
-            seg_duration,
-            preprocess_prompt,
-            postprocess_output,
+        waveform, msg = _call_gen_waveform(
+            gen_waveform,
+            text=text,
+            language=language,
+            ref_audio=ref_audio,
+            instruct=instruct,
+            num_step=num_step,
+            guidance_scale=guidance_scale,
+            denoise=denoise,
+            speed=seg_speed,
+            duration=seg_duration,
+            preprocess_prompt=preprocess_prompt,
+            postprocess_output=postprocess_output,
             ref_text=ref_text or None,
         )
         if waveform is None:
@@ -180,18 +214,19 @@ def srt_to_speech_sync(
         if slot <= 0:
             continue
 
-        waveform, msg = gen_waveform(
-            text,
-            language,
-            ref_audio,
-            instruct,
-            num_step,
-            guidance_scale,
-            denoise,
-            1.0,
-            slot,
-            preprocess_prompt,
-            postprocess_output,
+        waveform, msg = _call_gen_waveform(
+            gen_waveform,
+            text=text,
+            language=language,
+            ref_audio=ref_audio,
+            instruct=instruct,
+            num_step=num_step,
+            guidance_scale=guidance_scale,
+            denoise=denoise,
+            speed=1.0,
+            duration=slot,
+            preprocess_prompt=preprocess_prompt,
+            postprocess_output=postprocess_output,
             ref_text=ref_text or None,
         )
         if waveform is None:
