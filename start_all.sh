@@ -74,6 +74,9 @@ _is_running() {
     [ -f "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null
 }
 
+# shellcheck source=scripts/port_utils.sh
+source "$SCRIPT_DIR/scripts/port_utils.sh"
+
 _preflight
 
 # Xoa PID cu cua OmniVoice API (da gop vao app.py)
@@ -81,18 +84,24 @@ rm -f "$PID_DIR/omnivoice.pid"
 
 if _is_running "$PID_DIR/ui.pid"; then
     echo "[CANH BAO] dub_app da chay (PID $(cat "$PID_DIR/ui.pid"))."
-else
-    echo "Khoi dong dub_app (cong ${GRADIO_PORT})..."
-    UI_ENV="PYTHONUTF8=1 GRADIO_PORT=${GRADIO_PORT} OMNIVOICE_NO_ASR=${OMNIVOICE_NO_ASR:-0}"
-    if [ "${GRADIO_SHARE:-0}" = "1" ]; then
-        UI_ENV="$UI_ENV GRADIO_SHARE=1"
-    fi
-    # shellcheck disable=SC2086
-    nohup env $UI_ENV bash "$SCRIPT_DIR/run.sh" \
-        > "$SCRIPT_DIR/logs/ui.log" 2>&1 &
-    echo $! > "$PID_DIR/ui.pid"
-    echo "  PID: $(cat "$PID_DIR/ui.pid") | log: logs/ui.log"
+    echo "           UI: http://$(hostname -I 2>/dev/null | awk '{print $1}'):${GRADIO_PORT}"
+    exit 0
 fi
+
+if port_in_use "$GRADIO_PORT"; then
+    ensure_port_free "$GRADIO_PORT" "$SCRIPT_DIR" || exit 1
+fi
+
+echo "Khoi dong dub_app (cong ${GRADIO_PORT})..."
+UI_ENV="PYTHONUTF8=1 GRADIO_PORT=${GRADIO_PORT} GRADIO_SERVER_PORT=${GRADIO_PORT} OMNIVOICE_NO_ASR=${OMNIVOICE_NO_ASR:-0}"
+if [ "${GRADIO_SHARE:-0}" = "1" ]; then
+    UI_ENV="$UI_ENV GRADIO_SHARE=1"
+fi
+# shellcheck disable=SC2086
+nohup env $UI_ENV bash "$SCRIPT_DIR/run.sh" \
+    > "$SCRIPT_DIR/logs/ui.log" 2>&1 &
+echo $! > "$PID_DIR/ui.pid"
+echo "  PID: $(cat "$PID_DIR/ui.pid") | log: logs/ui.log"
 
 sleep 3
 

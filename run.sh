@@ -74,6 +74,12 @@ if ! command -v ffmpeg &>/dev/null; then
     echo "[CANH BAO] Khong tim thay ffmpeg trong PATH."
 fi
 
+# shellcheck source=scripts/port_utils.sh
+source "$SCRIPT_DIR/scripts/port_utils.sh"
+ensure_port_free "$GRADIO_PORT" "$SCRIPT_DIR" || exit 1
+
+export GRADIO_SERVER_PORT="$GRADIO_PORT"
+
 echo "=========================================="
 echo " dub_app — Long tieng video (1 process)"
 echo " Python: $(which python) ($(python --version))"
