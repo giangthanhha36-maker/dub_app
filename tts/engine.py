@@ -73,7 +73,6 @@ class OmniVoiceEngine:
         text: str,
         language: str = "Auto",
         ref_audio=None,
-        ref_text: Optional[str] = None,
         instruct: str = "",
         num_step: int = 32,
         guidance_scale: float = 2.0,
@@ -82,8 +81,12 @@ class OmniVoiceEngine:
         duration: float = 0,
         preprocess_prompt: bool = True,
         postprocess_output: bool = True,
+        ref_text: Optional[str] = None,
     ) -> Tuple[Optional[np.ndarray], str]:
-        """Sinh waveform float [-1, 1] cho một câu text."""
+        """Sinh waveform float [-1, 1] cho một câu text.
+
+        Thu tu tham so khop srt_processor / audio.py (_gen_waveform).
+        """
         self._ensure_loaded()
         if not text or not text.strip():
             return None, "Vui lòng nhập text cần đọc."
