@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# Tao / sua moi truong conda "omnivoice" cho audio.py (service long tieng).
+# Tao / sua moi truong conda "omnivoice" cho dub_app (UI + OmniVoice, 1 process).
 #
 #   chmod +x setup_omnivoice.sh
 #   ./setup_omnivoice.sh
@@ -55,7 +55,7 @@ pip install --no-cache-dir -r requirements-omnivoice-base.txt
 echo ">>> Cai omnivoice + thu vien audio..."
 pip install --no-cache-dir -r requirements-omnivoice.txt
 
-python -c "import gradio; import huggingface_hub; print('[OK] gradio', gradio.__version__, '| huggingface_hub', huggingface_hub.__version__)"
+python -c "import gradio; import huggingface_hub; import transformers; print('[OK] gradio', gradio.__version__, '| huggingface_hub', huggingface_hub.__version__, '| transformers', transformers.__version__)"
 python -c "import torch; print('[OK] torch', torch.__version__, 'cuda', torch.cuda.is_available())"
 
 conda deactivate
@@ -64,6 +64,7 @@ echo ""
 echo "=========================================="
 echo " OMNIVOICE ENV XONG"
 echo "=========================================="
-echo " Khoi dong API:"
-echo "   ./run_omnivoice.sh"
+echo " Khoi dong dub_app:"
+echo "   ./run.sh"
+echo "   ./start_all.sh   # background"
 echo "=========================================="

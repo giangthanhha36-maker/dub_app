@@ -15,3 +15,4 @@ numpy
 pysrt
 librosa
 soundfile
+PyYAML>=6.0

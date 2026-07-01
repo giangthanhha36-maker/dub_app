@@ -15,6 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
+DEPRECATED — Gradio demo OmniVoice rieng (cong 7861).
+
+Logic TTS da chuyen sang tts/engine.py; UI chinh la app.py.
+File nay giu lam tham chieu, khong chay truc tiep nua.
+
+---
+
 Gradio demo cho OmniVoice: chuyển .srt hoặc text -> audio hoàn chỉnh.
 
 Ý tưởng nghiệp vụ mượn từ main.py (vốn dùng Voicevox), nhưng ở đây thay engine
@@ -1651,38 +1658,48 @@ by Xiaomi AI Lab Next-gen Kaldi team.
 
 
 def main(argv=None) -> int:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s: %(message)s",
+    import sys
+
+    print(
+        "[DEPRECATED] audio.py (Gradio API rieng) khong con duoc dung.\n"
+        "             Logic TTS: tts/engine.py | UI: app.py | Chay: ./run.sh",
+        file=sys.stderr,
     )
-    parser = build_parser()
-    args = parser.parse_args(argv)
+    return 1
 
-    device = args.device or get_best_device()
-
-    checkpoint = args.model
-    if not checkpoint:
-        parser.print_help()
-        return 0
-    logging.info(f"Loading model from {checkpoint}, device={device} ...")
-    model = OmniVoice.from_pretrained(
-        checkpoint,
-        device_map=device,
-        dtype=torch.float16,
-        load_asr=not args.no_asr,
-        asr_model_name=args.asr_model,
-    )
-    print("Model loaded.")
-
-    demo = build_demo(model, checkpoint)
-
-    demo.queue().launch(
-        server_name=args.ip,
-        server_port=args.port,
-        share=args.share,
-        root_path=args.root_path,
-    )
-    return 0
+    # --- CODE CU (giu tham chieu) ---
+    # logging.basicConfig(
+    #     level=logging.INFO,
+    #     format="%(asctime)s %(name)s %(levelname)s: %(message)s",
+    # )
+    # parser = build_parser()
+    # args = parser.parse_args(argv)
+    #
+    # device = args.device or get_best_device()
+    #
+    # checkpoint = args.model
+    # if not checkpoint:
+    #     parser.print_help()
+    #     return 0
+    # logging.info(f"Loading model from {checkpoint}, device={device} ...")
+    # model = OmniVoice.from_pretrained(
+    #     checkpoint,
+    #     device_map=device,
+    #     dtype=torch.float16,
+    #     load_asr=not args.no_asr,
+    #     asr_model_name=args.asr_model,
+    # )
+    # print("Model loaded.")
+    #
+    # demo = build_demo(model, checkpoint)
+    #
+    # demo.queue().launch(
+    #     server_name=args.ip,
+    #     server_port=args.port,
+    #     share=args.share,
+    #     root_path=args.root_path,
+    # )
+    # return 0
 
 
 if __name__ == "__main__":

@@ -3,9 +3,12 @@
 import os
 import shutil
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from client.tts_client import generate_dub
 from utils.audio_mix import mix_and_mux
+
+if TYPE_CHECKING:
+    from tts.engine import OmniVoiceEngine
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_ROOT = os.path.join(APP_DIR, "output")
@@ -15,7 +18,7 @@ def run_dub_pipeline(
     video_path: str,
     srt_path: str,
     *,
-    server_url: str,
+    engine: "OmniVoiceEngine",
     ref_audio: str = None,
     ref_text: str = None,
     language: str = "Vietnamese",
@@ -39,6 +42,8 @@ def run_dub_pipeline(
         raise FileNotFoundError("Chua chon video hoac file khong ton tai.")
     if not srt_path or not os.path.exists(srt_path):
         raise FileNotFoundError("Chua chon file .srt hoac file khong ton tai.")
+    if engine is None or not engine.is_loaded:
+        raise RuntimeError("OmniVoice engine chua san sang. Doi model tai xong.")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     base_name = os.path.splitext(os.path.basename(video_path))[0]
@@ -57,17 +62,17 @@ def run_dub_pipeline(
         local_srt = srt_path
 
     tts_wav = os.path.join(work_dir, f"{base_name}_dub.wav")
-    log(f"Tao giong long tieng (OmniVoice: {server_url})...")
-    generate_dub(
+    log("Tao giong long tieng (OmniVoice)...")
+    engine.srt_to_wav(
         srt_path=local_srt,
-        server_url=server_url,
+        out_wav=tts_wav,
         ref_audio=ref_audio,
         ref_text=(ref_text or "").strip() or None,
         language=language,
         num_step=int(num_step),
         max_speed=float(max_speed),
         hard_sync=bool(hard_sync),
-        out_wav=tts_wav,
+        log_fn=log,
     )
     log(f"Da tao dub.wav: {tts_wav}")
 

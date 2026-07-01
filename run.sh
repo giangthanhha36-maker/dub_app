@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# Khoi dong UI long tieng doc lap (dub_app).
+# Khoi dong dub_app — UI + OmniVoice trong CUNG mot process.
 #
 #   ./run.sh
 #   GRADIO_PORT=7860 ./run.sh
 #   GRADIO_SHARE=1 ./run.sh
-#
-# Yeu cau: OmniVoice API dang chay (audio.py, cong 7861) — URL trong config.yaml
-# Luu y: dub_app dung venv RIENG (.venv/), KHONG chay trong env omnivoice.
+#   OMNIVOICE_NO_ASR=1 ./run.sh   # nhe VRAM
 # ===========================================================================
 set -euo pipefail
 
@@ -19,59 +17,69 @@ if [ ! -f config.yaml ]; then
     echo "[OK] Da tao config.yaml tu template."
 fi
 
-VENV_DIR="$SCRIPT_DIR/.venv"
+export PYTHONUTF8="${PYTHONUTF8:-1}"
+export GRADIO_PORT="${GRADIO_PORT:-7860}"
+OMNIVOICE_NO_ASR="${OMNIVOICE_NO_ASR:-0}"
+export OMNIVOICE_NO_ASR
 
-# Canh bao neu dang o env omnivoice (xung dot gradio / huggingface_hub)
-if [ "${CONDA_DEFAULT_ENV:-}" = "omnivoice" ]; then
-    echo "[CANH BAO] Ban dang trong env 'omnivoice'."
-    echo "           dub_app se dung .venv/ rieng — KHONG dung Python cua omnivoice."
-    echo ""
+if [ -z "${OMNIVOICE_CUDA_DEVICE:-}" ] && command -v nvidia-smi &>/dev/null; then
+    _GPU_COUNT="$(nvidia-smi --query-gpu=index --format=csv,noheader 2>/dev/null | wc -l | tr -d ' ')"
+    if [ "${_GPU_COUNT:-0}" -ge 2 ]; then
+        OMNIVOICE_CUDA_DEVICE=1
+        echo "[INFO] Phat hien ${_GPU_COUNT} GPU -> OmniVoice dung GPU ${OMNIVOICE_CUDA_DEVICE}"
+    else
+        OMNIVOICE_CUDA_DEVICE=0
+    fi
 fi
+OMNIVOICE_CUDA_DEVICE="${OMNIVOICE_CUDA_DEVICE:-0}"
+export CUDA_VISIBLE_DEVICES="${OMNIVOICE_CUDA_DEVICE}"
 
-# Uu tien Python 3.10–3.12 (Gradio 4.44 on dinh hon Python 3.13)
-_pick_python() {
-    for cmd in python3.12 python3.11 python3.10 python3; do
-        if command -v "$cmd" &>/dev/null; then
-            echo "$cmd"
-            return 0
+if ! command -v conda &>/dev/null; then
+    for _conda_sh in \
+        "$HOME/miniconda3/etc/profile.d/conda.sh" \
+        "$HOME/anaconda3/etc/profile.d/conda.sh" \
+        "/opt/conda/etc/profile.d/conda.sh"
+    do
+        if [ -f "$_conda_sh" ]; then
+            # shellcheck source=/dev/null
+            source "$_conda_sh"
+            break
         fi
     done
-    echo "[LOI] Khong tim thay python3." >&2
+    unset _conda_sh
+fi
+
+if ! command -v conda &>/dev/null; then
+    echo "[LOI] Khong tim thay conda. Chay: ./setup_omnivoice.sh"
     exit 1
-}
-
-PYTHON_BIN="$(_pick_python)"
-
-# Tao venv rieng cho dub_app (nhe, tach biet khoi OmniVoice GPU)
-if [ ! -d "$VENV_DIR" ]; then
-    echo "[SETUP] Tao moi truong .venv (dung ${PYTHON_BIN})..."
-    "$PYTHON_BIN" -m venv "$VENV_DIR"
 fi
 
 # shellcheck disable=SC1091
-source "$VENV_DIR/bin/activate"
+source "$(conda info --base)/etc/profile.d/conda.sh"
 
-# Cai / sua thu vien neu import gradio that bai (vd. thieu pyaudioop tren Py 3.13)
-if ! python -c "import gradio" 2>/dev/null; then
-    echo "[SETUP] Cai/cap nhat requirements.txt vao .venv..."
-    pip install -r requirements.txt
+conda activate omnivoice 2>/dev/null || {
+    echo "[LOI] Chua co moi truong 'omnivoice'."
+    echo "      Chay: ./setup_omnivoice.sh"
+    exit 1
+}
+
+# Cai / cap nhat deps neu thieu
+if ! python -c "import gradio, omnivoice, yaml, soundfile" 2>/dev/null; then
+    echo "[SETUP] Cai dependency dub_app..."
+    pip install -r requirements-omnivoice-base.txt
+    pip install -r requirements-omnivoice.txt
 fi
 
-# Python 3.13: dam bao co pyaudioop (audioop da bi xoa khoi stdlib)
-PY_MINOR="$(python -c "import sys; print(sys.version_info.minor)")"
-if [ "$PY_MINOR" -ge 13 ] && ! python -c "import pyaudioop" 2>/dev/null; then
-    echo "[SETUP] Python 3.13 — cai pyaudioop..."
-    pip install "pyaudioop>=0.3.0"
+if ! command -v ffmpeg &>/dev/null; then
+    echo "[CANH BAO] Khong tim thay ffmpeg trong PATH."
 fi
-
-export PYTHONUTF8="${PYTHONUTF8:-1}"
-export GRADIO_PORT="${GRADIO_PORT:-7860}"
 
 echo "=========================================="
-echo " dub_app — Long tieng video"
+echo " dub_app — Long tieng video (1 process)"
 echo " Python: $(which python) ($(python --version))"
+echo " GPU:    ${OMNIVOICE_CUDA_DEVICE}"
 echo " Cong:   ${GRADIO_PORT}"
-echo " OmniVoice API: xem tts.server_url trong config.yaml"
+echo " Doi den khi thay: Model loaded."
 echo "=========================================="
 
 exec python app.py

@@ -7,17 +7,18 @@ Khong phu thuoc pipeline OCR/xoa phu de/dich. Clone repo nay la du de chay tren 
 ## Kien truc
 
 ```
-Trinh duyet  →  dub_app UI (:7860, .venv)  →  OmniVoice API (:7861, conda omnivoice + GPU)
+Trinh duyet  →  app.py (:7860, conda omnivoice + GPU)
+                    UI Gradio + OmniVoice engine (cung process)
 ```
 
-Hai service dung **hai moi truong Python tach biet** — khong tron chung env.
+**Mot process, mot Gradio** — khong con service API rieng tren cong 7861.
 
 ## Yeu cau
 
-- Python 3.10+ (UI), Python 3.12 (OmniVoice API)
+- Python 3.12 (conda env `omnivoice`)
 - `ffmpeg` trong PATH
-- GPU NVIDIA + driver (`nvidia-smi` chay duoc) cho OmniVoice
-- Miniconda (cho env `omnivoice`)
+- GPU NVIDIA + driver (`nvidia-smi` chay duoc)
+- Miniconda
 - File `.srt` da chuan bi ben ngoai (timeline khop video)
 
 ## Cai dat lan dau
@@ -27,14 +28,11 @@ git clone <repo-dub_app>
 cd dub_app
 
 cp config-template.yaml config.yaml
-# Sua config.yaml neu OmniVoice chay may khac
 
-chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh status.sh
+chmod +x setup_omnivoice.sh run.sh start_all.sh stop_all.sh status.sh
 
-# 1) Cai env GPU cho OmniVoice API (chay 1 lan)
+# Cai env GPU + deps (chay 1 lan)
 ./setup_omnivoice.sh
-
-# 2) UI tu tao .venv khi chay ./run.sh lan dau
 ```
 
 ## Chay
@@ -42,9 +40,9 @@ chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh sta
 ### Cach 1 — Mot lenh (khuyen nghi tren server)
 
 ```bash
-./start_all.sh              # khoi dong UI + OmniVoice (nen)
+./start_all.sh              # khoi dong background
 ./status.sh                 # xem trang thai
-tail -f logs/omnivoice.log  # doi "Model loaded." truoc khi long tieng
+tail -f logs/ui.log         # doi "Model loaded." truoc khi long tieng
 ```
 
 Dung tat ca:
@@ -55,41 +53,51 @@ Dung tat ca:
 
 Mo trinh duyet: **http://&lt;IP-server&gt;:7860**
 
-### Cach 2 — Hai terminal (khi debug)
+### Cach 2 — Foreground (khi debug)
 
 ```bash
-# Terminal 1 — OmniVoice API (doi "Model loaded.")
-./run_omnivoice.sh
-
-# Terminal 2 — UI long tieng
 ./run.sh
 ```
 
-### Cach 3 — Link Gradio public (khong can mo firewall)
+### Cach 3 — CLI headless (khong can trinh duyet)
+
+```bash
+conda activate omnivoice
+python -m pipeline.cli \
+  --video input.mp4 \
+  --srt input.srt \
+  --ref-audio voice.wav \
+  --language Vietnamese
+```
+
+### Link Gradio public (khong can mo firewall)
 
 ```bash
 GRADIO_SHARE=1 ./start_all.sh
 ```
 
-Chi tiet trien khai server (firewall, tmux, SSH tunnel): xem [SERVER.md](SERVER.md).
+Chi tiet trien khai server: xem [SERVER.md](SERVER.md).
 
 ## Cau truc
 
 ```
 dub_app/
-├── app.py                    # UI Gradio (long tieng)
-├── audio.py                  # OmniVoice API (SRT → speech)
+├── app.py                    # UI Gradio + load OmniVoice engine
 ├── config-template.yaml
-├── run.sh                    # Khoi dong UI (.venv)
-├── run_omnivoice.sh          # Khoi dong OmniVoice API (conda)
+├── run.sh                    # Khoi dong app (conda omnivoice)
 ├── setup_omnivoice.sh        # Cai env omnivoice (1 lan)
-├── start_all.sh              # Khoi dong ca 2 service (1 lenh)
-├── stop_all.sh               # Dung ca 2 service (1 lenh)
-├── status.sh                 # Xem trang thai dich vu
-├── requirements.txt          # Thu vien UI
+├── start_all.sh              # Khoi dong background (1 lenh)
+├── stop_all.sh               # Dung service (1 lenh)
+├── status.sh                 # Xem trang thai
 ├── requirements-omnivoice.txt
-├── pipeline/run.py           # video + SRT → dub → ghep
-├── client/tts_client.py      # goi OmniVoice API
+├── tts/
+│   ├── engine.py             # OmniVoiceEngine (logic TTS)
+│   ├── srt_processor.py      # SRT -> waveform
+│   └── helpers.py            # Audio helpers
+├── pipeline/
+│   ├── run.py                # video + SRT -> dub -> ghep
+│   └── cli.py                # CLI headless
+├── audio.py                  # DEPRECATED (tham chieu cu)
 └── utils/                    # ffmpeg, audio mix 3:7
 ```
 
@@ -101,8 +109,15 @@ Output: `output/<ten_video>_<timestamp>/`
 
 ```yaml
 tts:
-  server_url: "http://127.0.0.1:7861"   # cung may
-  # server_url: "http://<IP-GPU>:7861"  # may khac
+  model: "k2-fsa/OmniVoice"
+  no_asr: false          # true = nhe VRAM
+  num_step: 32
+  max_speed: 1.3
+  hard_sync: true
+
+dub:
+  orig_gain: 0.3
+  tts_gain: 0.7
 
 ui:
   port: 7860
@@ -114,17 +129,8 @@ Doi cong UI khi chay:
 GRADIO_PORT=8080 ./run.sh
 ```
 
-## Cong thuong dung
+## Cong
 
 | Cong | Dich vu |
 |------|---------|
 | 7860 | dub_app UI (mac dinh) |
-| 7861 | OmniVoice API |
-
-## OmniVoice tren may khac
-
-1. Clone repo nay (hoac chi can `audio.py` + script omnivoice) len server GPU
-2. `./setup_omnivoice.sh && ./run_omnivoice.sh`
-3. Trong `config.yaml` cua dub_app: `tts.server_url: "http://<IP-GPU>:7861"`
-
-May chay UI **khong can** GPU hay env `omnivoice` — chi can `gradio_client` goi API.

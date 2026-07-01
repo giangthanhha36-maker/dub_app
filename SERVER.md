@@ -8,14 +8,13 @@ Huong dan cho server Linux **khong co man hinh**, thao tac qua SSH. Giao dien we
 
 | Cong | Dich vu | Mo ra internet? |
 |------|---------|-----------------|
-| **7860** | dub_app UI (`app.py`) | **CO** — cong ban truy cap |
-| **7861** | OmniVoice API (`audio.py`) | **KHONG** (mac dinh chi localhost) |
+| **7860** | dub_app (`app.py` — UI + OmniVoice) | **CO** — cong ban truy cap |
 
 ```text
 http://<IP-server>:7860
 ```
 
-Cung may: `tts.server_url: "http://127.0.0.1:7861"` trong `config.yaml`.
+OmniVoice chay **trong cung process** voi UI — khong can mo cong 7861.
 
 ---
 
@@ -48,7 +47,7 @@ source ~/.bashrc
 git clone <repo-dub_app>
 cd dub_app
 
-chmod +x setup_omnivoice.sh run_omnivoice.sh run.sh start_all.sh stop_all.sh
+chmod +x setup_omnivoice.sh run.sh start_all.sh stop_all.sh status.sh
 cp config-template.yaml config.yaml
 
 ./setup_omnivoice.sh
@@ -65,7 +64,7 @@ Lan dau `setup_omnivoice.sh` tai torch + model OmniVoice — mat vai phut.
 ```bash
 ./start_all.sh
 ./status.sh
-tail -f logs/omnivoice.log   # doi dong "Model loaded."
+tail -f logs/ui.log   # doi dong "Model loaded."
 ```
 
 Dung tat ca:
@@ -74,30 +73,20 @@ Dung tat ca:
 ./stop_all.sh
 ```
 
-### Cach B — Hai terminal / tmux
-
-```bash
-# Phien 1
-./run_omnivoice.sh
-
-# Phien 2 (sau khi Model loaded.)
-./run.sh
-```
-
-### tmux (giu chay sau khi thoat SSH)
+### Cach B — Foreground / tmux
 
 ```bash
 tmux new -s dub
-./start_all.sh
+./run.sh
 # Ctrl+B roi D de detach
 # Quay lai: tmux attach -t dub
 ```
 
-Dung:
+### CLI headless (khong can UI)
 
 ```bash
-./stop_all.sh
-./status.sh
+conda activate omnivoice
+python -m pipeline.cli --video input.mp4 --srt input.srt
 ```
 
 ---
@@ -135,10 +124,7 @@ Link dang `https://xxxxx.gradio.live` trong log.
 ## 6. Doi cong UI
 
 ```bash
-# Dung process cu truoc
 ./stop_all.sh
-# hoac: fuser -k 7860/tcp
-
 GRADIO_PORT=8080 ./run.sh
 ```
 
@@ -146,14 +132,13 @@ Hoac sua `config.yaml` → `ui.port: 8080`.
 
 ---
 
-## 7. Hai moi truong Python (quan trong)
+## 7. Moi truong Python
 
 | Thanh phan | Env | Lenh |
 |------------|-----|------|
-| UI dub_app | `.venv/` (tu dong) | `./run.sh` |
-| OmniVoice API | `conda activate omnivoice` | `./run_omnivoice.sh` |
+| dub_app (UI + TTS) | `conda activate omnivoice` | `./run.sh` |
 
-**Khong** chay `./run.sh` trong env `omnivoice` — se loi `HfFolder` / xung dot Gradio.
+Khong con `.venv` rieng hay service API tren cong 7861.
 
 ---
 
@@ -161,18 +146,10 @@ Hoac sua `config.yaml` → `ui.port: 8080`.
 
 | Trieu chung | Cach xu ly |
 |-------------|------------|
-| `HfFolder` / `huggingface_hub` | Trong env omnivoice: `pip install -r requirements-omnivoice.txt` hoac chay lai `./setup_omnivoice.sh` |
-| `audioop` / `pyaudioop` (Python 3.13) | `./run.sh` tu cai; hoac `rm -rf .venv` roi chay lai (uu tien python3.12) |
-| `Cannot find empty port 7860` | Process cu chua tat: `fuser -k 7860/tcp` hoac `./stop_all.sh` |
-| `Connection refused` :7861 | OmniVoice chua chay: `./run_omnivoice.sh`, doi `Model loaded.` |
-| Khong vao duoc `:7860` tu ngoai | Kiem tra `ufw` + Security Group VPS; thu SSH tunnel |
-| Out of memory GPU | `OMNIVOICE_NO_ASR=1 ./run_omnivoice.sh` (nhe VRAM hon) |
-
-Kiem tra OmniVoice san sang:
-
-```bash
-curl http://127.0.0.1:7861
-```
+| `HfFolder` / `huggingface_hub` | Trong env omnivoice: `pip install -r requirements-omnivoice-base.txt` hoac chay lai `./setup_omnivoice.sh` |
+| `Cannot find empty port 7860` | Process cu chua tat: `./stop_all.sh` hoac `fuser -k 7860/tcp` |
+| Out of memory GPU | `OMNIVOICE_NO_ASR=1 ./run.sh` hoac `no_asr: true` trong config.yaml |
+| Model load cham | Binh thuong — doi "Model loaded." trong `logs/ui.log` |
 
 ---
 

@@ -10,7 +10,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_DIR="$SCRIPT_DIR/.pids"
 
 GRADIO_PORT="${GRADIO_PORT:-7860}"
-OMNIVOICE_PORT="${OMNIVOICE_PORT:-7861}"
 
 _check_pid() {
     local name="$1"
@@ -54,22 +53,19 @@ echo "=========================================="
 echo " Trang thai dub_app"
 echo "=========================================="
 
-_check_pid "OmniVoice API" "$PID_DIR/omnivoice.pid" || true
-_check_pid "UI dub_app" "$PID_DIR/ui.pid" || true
+_check_pid "dub_app (UI + OmniVoice)" "$PID_DIR/ui.pid" || true
 echo ""
-_check_port "$OMNIVOICE_PORT" "OmniVoice" || true
 _check_port "$GRADIO_PORT" "UI" || true
 echo ""
-_check_http "http://127.0.0.1:${OMNIVOICE_PORT}" "OmniVoice" || true
 _check_http "http://127.0.0.1:${GRADIO_PORT}" "UI" || true
 
-if [ -f "$SCRIPT_DIR/logs/omnivoice.log" ]; then
-    if grep -q "Model loaded" "$SCRIPT_DIR/logs/omnivoice.log" 2>/dev/null; then
+if [ -f "$SCRIPT_DIR/logs/ui.log" ]; then
+    if grep -q "Model loaded" "$SCRIPT_DIR/logs/ui.log" 2>/dev/null; then
         echo ""
         echo "  OmniVoice model: DA LOAD"
     else
         echo ""
-        echo "  OmniVoice model: CHUA LOAD (xem: tail -f logs/omnivoice.log)"
+        echo "  OmniVoice model: CHUA LOAD (xem: tail -f logs/ui.log)"
     fi
 fi
 
