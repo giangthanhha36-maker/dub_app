@@ -1,4 +1,10 @@
-# Thu vien toi thieu cho dub_app (chay trong env ste hoac venv rieng)
+# Thu vien toi thieu cho dub_app (venv rieng, KHONG dung env omnivoice)
 gradio==4.44.1
 gradio_client==1.3.0
 PyYAML==6.0.2
+# Gradio 4.44.x import HfFolder tu huggingface_hub; ban 1.0+ da xoa -> loi khoi dong UI
+huggingface_hub<1.0
+# Pydantic 2.11+ gay loi gradio_client 1.3.0
+pydantic==2.10.6
+starlette==0.41.3
+fastapi==0.115.6
